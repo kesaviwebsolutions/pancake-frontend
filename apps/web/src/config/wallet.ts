@@ -3,7 +3,12 @@ import { WalletFilledIcon } from '@pancakeswap/uikit'
 import type { ExtendEthereum } from 'global'
 import { isFirefox } from 'react-device-detect'
 import WalletConnectProvider from '@walletconnect/ethereum-provider'
-import { metaMaskConnector, walletConnectNoQrCodeConnector } from '../utils/wagmi'
+import {
+  metaMaskConnector,
+  walletConnectNoQrCodeConnector,
+  trustWalletConnector,
+  safePalConnector,
+} from '../utils/wagmi'
 
 export enum ConnectorNames {
   MetaMask = 'metaMask',
@@ -13,6 +18,8 @@ export enum ConnectorNames {
   Blocto = 'blocto',
   WalletLink = 'coinbaseWallet',
   Ledger = 'ledger',
+  TrustWallet = 'trustWallet',
+  SafePal = 'safePal',
 }
 
 const delay = (t: number) => new Promise((resolve) => setTimeout(resolve, t))
@@ -71,11 +78,10 @@ const walletsConfig = ({
       id: 'trust',
       title: 'Trust Wallet',
       icon: '/images/wallets/trust.png',
-      connectorId: ConnectorNames.Injected,
-      installed:
-        typeof window !== 'undefined' &&
-        !(window.ethereum as ExtendEthereum)?.isSafePal && // SafePal has isTrust flag
-        (Boolean(window.ethereum?.isTrust) || Boolean((window.ethereum as ExtendEthereum)?.isTrustWallet)),
+      connectorId: ConnectorNames.TrustWallet,
+      get installed() {
+        return trustWalletConnector.ready
+      },
       deepLink: 'https://link.trustwallet.com/open_url?coin_id=20000714&url=https://pancakeswap.finance/',
       downloadLink: {
         desktop: 'https://chrome.google.com/webstore/detail/trust-wallet/egjidjbpglichdcondbcbdnbeeppgdph/related',
@@ -124,8 +130,10 @@ const walletsConfig = ({
       id: 'safepal',
       title: 'SafePal',
       icon: '/images/wallets/safepal.png',
-      connectorId: ConnectorNames.Injected,
-      installed: typeof window !== 'undefined' && Boolean((window.ethereum as ExtendEthereum)?.isSafePal),
+      connectorId: ConnectorNames.SafePal,
+      get installed() {
+        return safePalConnector.ready
+      },
       downloadLink:
         'https://chrome.google.com/webstore/detail/safepal-extension-wallet/lgmpcpglpngdoalbgeoldeajfclnhafa',
       qrCode,

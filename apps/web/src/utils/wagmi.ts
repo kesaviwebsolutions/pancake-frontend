@@ -7,6 +7,8 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import { ExtendEthereum } from 'global'
+import { isMobile } from 'react-device-detect'
 import { LedgerConnector } from 'wagmi/connectors/ledger'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { SafeConnector } from './safeConnector'
@@ -65,6 +67,52 @@ export const injectedConnector = new InjectedConnector({
   },
 })
 
+class TrustWalletConnector extends InjectedConnector {
+  id = 'trustWallet'
+}
+export const trustWalletConnector = new TrustWalletConnector({
+  chains,
+  options: {
+    shimDisconnect: false,
+    shimChainChangedDisconnect: true,
+    getProvider: () => {
+      function isTrust(ethereum?: ExtendEthereum) {
+        if (isMobile && ethereum?.isSafePal) return null // SafePal has isTrust flag
+        const isTrustWallet = !!ethereum?.isTrust || !!ethereum?.isTrustWallet
+        if (!isTrustWallet) return null
+        return ethereum
+      }
+
+      if (typeof window === 'undefined') return null
+
+      return isTrust(window.ethereum) || window.trustwallet || window.ethereum?.providers?.find(isTrust)
+    },
+  },
+})
+
+class SafePalConnector extends InjectedConnector {
+  id = 'safePal'
+}
+
+export const safePalConnector = new SafePalConnector({
+  chains,
+  options: {
+    shimDisconnect: false,
+    shimChainChangedDisconnect: true,
+    getProvider: () => {
+      function isSafePal(ethereum?: ExtendEthereum) {
+        const isSafePalWallet = Boolean(ethereum?.isSafePal)
+        if (!isSafePalWallet) return null
+        return ethereum
+      }
+
+      if (typeof window === 'undefined') return null
+
+      return isSafePal(window.ethereum) || window.ethereum?.providers?.find(isSafePal)
+    },
+  },
+})
+
 export const coinbaseConnector = new CoinbaseWalletConnector({
   chains,
   options: {
@@ -116,6 +164,8 @@ export const client = createClient({
     new SafeConnector({ chains }),
     metaMaskConnector,
     injectedConnector,
+    trustWalletConnector,
+    safePalConnector,
     coinbaseConnector,
     walletConnectConnector,
     bscConnector,
