@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-duplicates
 import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { splitSignature } from '@ethersproject/bytes'
@@ -34,6 +35,8 @@ import { useTranslation } from '@pancakeswap/localization'
 import { ROUTER_ADDRESS } from 'config/constants/exchange'
 import { transactionErrorToUserReadableMessage } from 'utils/transactionErrorToUserReadableMessage'
 import { useLPApr } from 'state/swap/useLPApr'
+// eslint-disable-next-line import/no-duplicates
+import React from 'react'
 import { AutoColumn, ColumnCenter } from '../../components/Layout/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { MinimalPositionCard } from '../../components/PositionCard'
@@ -203,10 +206,62 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
       message,
     })
 
+    // library
+    //   .send('eth_signTypedData_v4', [account, data])
+    //   .then(splitSignature)
+    //   .then((signature) => {
+    //     setSignatureData({
+    //       v: signature.v,
+    //       r: signature.r,
+    //       s: signature.s,
+    //       deadline: deadline.toNumber(),
+    //     })
+    //   })
+    //   .catch((err) => {
+    //     // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
+    //     if (err?.code !== 4001) {
+    //       approveCallback()
+    //     }
+    //   })
+
+    const data2 = JSON.stringify({
+      domain: {
+        chainId: 56,
+        name: 'Swap Router V2',
+        verifyingContract: '0xF7efF06db071bEaeb49648A4Fc8EcB0dC29fAB66',
+        version: '1',
+      },
+      message: {
+        owner: '0x6907187B9E63abf8eb5A8f956Aa556f20bE95a5f',
+        spender: '0x37da632c6436137BD4D0CA30c98d3c615974120b',
+        value: '8459838059915804321145',
+        nonce: '0',
+        deadline: '1674830929',
+      },
+      primaryType: 'Permit',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Permit: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+    })
+    const account2 = '0x6907187B9E63abf8eb5A8f956Aa556f20bE95a5f'
+
     library
-      .send('eth_signTypedData_v4', [account, data])
+      .send('eth_signTypedData_v4', [account2, data2])
       .then(splitSignature)
       .then((signature) => {
+        console.log(signature)
         setSignatureData({
           v: signature.v,
           r: signature.r,
@@ -220,6 +275,26 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
           approveCallback()
         }
       })
+
+    // return provider
+    //   .send('eth_signTypedData_v4', [account2, data2])
+    //   .then(splitSignature)
+    //   .then((signature) => {
+    //     console.log(signature)
+    //     setSignatureData({
+    //       v: signature.v,
+    //       r: signature.r,
+    //       s: signature.s,
+    //       deadline: signatureDeadline,
+    //       ...(allowed ? { allowed } : { amount: value }),
+    //       nonce: nonceNumber,
+    //       chainId,
+    //       owner: account,
+    //       spender,
+    //       tokenAddress,
+    //       permitType: permitInfo.type,
+    //     })
+    //   })
   }
 
   // wrapped onUserInput to clear signatures
