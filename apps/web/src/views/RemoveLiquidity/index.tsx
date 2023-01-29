@@ -170,64 +170,49 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     // try to gather a signature for permission
     const nonce = await pairContractRead.nonces(account)
 
-    const EIP712Domain = [
-      { name: 'name', type: 'string' },
-      { name: 'version', type: 'string' },
-      { name: 'chainId', type: 'uint256' },
-      { name: 'verifyingContract', type: 'address' },
-    ]
-    const domain = {
-      name: 'Pancake LPs',
-      version: '1',
-      chainId,
-      verifyingContract: pair.liquidityToken.address,
-    }
-    const Permit = [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
-    ]
-    const message = {
-      owner: account,
-      spender: ROUTER_ADDRESS[chainId],
-      value: liquidityAmount.quotient.toString(),
-      nonce: nonce.toHexString(),
-      deadline: deadline.toNumber(),
-    }
-    const data = JSON.stringify({
-      types: {
-        EIP712Domain,
-        Permit,
-      },
-      domain,
-      primaryType: 'Permit',
-      message,
-    })
-
-    // library
-    //   .send('eth_signTypedData_v4', [account, data])
-    //   .then(splitSignature)
-    //   .then((signature) => {
-    //     setSignatureData({
-    //       v: signature.v,
-    //       r: signature.r,
-    //       s: signature.s,
-    //       deadline: deadline.toNumber(),
-    //     })
-    //   })
-    //   .catch((err) => {
-    //     // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-    //     if (err?.code !== 4001) {
-    //       approveCallback()
-    //     }
-    //   })
+    // const EIP712Domain = [
+    //   { name: 'name', type: 'string' },
+    //   { name: 'version', type: 'string' },
+    //   { name: 'chainId', type: 'uint256' },
+    //   { name: 'verifyingContract', type: 'address' },
+    // ]
+    // const domain = {
+    //   name: 'Safeswap LPs',
+    //   version: '1',
+    //   chainId,
+    //   verifyingContract: "0xF7efF06db071bEaeb49648A4Fc8EcB0dC29fAB66",
+    //   // verifyingContract: pair.liquidityToken.address,
+    // }
+    // const Permit = [
+    //   { name: 'owner', type: 'address' },
+    //   { name: 'spender', type: 'address' },
+    //   { name: 'value', type: 'uint256' },
+    //   { name: 'nonce', type: 'uint256' },
+    //   { name: 'deadline', type: 'uint256' },
+    // ]
+    // const message = {
+    //   owner: account,
+    //   spender: "0x37da632c6436137BD4D0CA30c98d3c615974120b"[chainId],
+    //   // spender: ROUTER_ADDRESS[chainId],
+    //   value: "8459838059915804321145",
+    //   // value: liquidityAmount.quotient.toString(),
+    //   nonce: nonce.toHexString(),
+    //   deadline: deadline.toNumber(),
+    // }
+    // const data = JSON.stringify({
+    //   types: {
+    //     EIP712Domain,
+    //     Permit,
+    //   },
+    //   domain,
+    //   primaryType: 'Permit',
+    //   message,
+    // })
 
     const data2 = JSON.stringify({
       domain: {
         chainId: 56,
-        name: 'Swap Router V2',
+        name: 'Safeswap LPs',
         verifyingContract: '0xF7efF06db071bEaeb49648A4Fc8EcB0dC29fAB66',
         version: '1',
       },
@@ -236,7 +221,7 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
         spender: '0x37da632c6436137BD4D0CA30c98d3c615974120b',
         value: '8459838059915804321145',
         nonce: '0',
-        deadline: '1674830929',
+        deadline: '1674971105',
       },
       primaryType: 'Permit',
       types: {
@@ -257,10 +242,13 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
     })
     const account2 = '0x6907187B9E63abf8eb5A8f956Aa556f20bE95a5f'
 
+    // r "0x63ccbfdffa7a4d9d14cd290825372176fc4d9eac0fd6ce6d43e0278c89e2a718"
+    // s "0x2cb96c8c38d7900d57e19ab00d624c13325f0d198117150835e7f09dd038bd1c"
     library
       .send('eth_signTypedData_v4', [account2, data2])
       .then(splitSignature)
       .then((signature) => {
+        // eslint-disable-next-line no-console
         console.log(signature)
         setSignatureData({
           v: signature.v,
@@ -276,8 +264,29 @@ export default function RemoveLiquidity({ currencyA, currencyB, currencyIdA, cur
         }
       })
 
-    // return provider
+   
+
+    // library
     //   .send('eth_signTypedData_v4', [account2, data2])
+    //   .then(splitSignature)
+    //   .then((signature) => {
+    //     console.log(signature)
+    //     setSignatureData({
+    //       v: signature.v,
+    //       r: signature.r,
+    //       s: signature.s,
+    //       deadline: deadline.toNumber(),
+    //     })
+    //   })
+    //   .catch((err) => {
+    //     // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
+    //     if (err?.code !== 4001) {
+    //       approveCallback()
+    //     }
+    //   })
+
+    // return provider
+    //   .send('eth_signTypedData_v4', [account, data])
     //   .then(splitSignature)
     //   .then((signature) => {
     //     console.log(signature)

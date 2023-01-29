@@ -159,6 +159,7 @@ const Home: React.FC<React.PropsWithChildren> = () => {
         <SalesSection {...cakeSectionData(t)} />
         <CakeDataRow />
       </PageSection>
+      {/* changes the footer section only */}
       <PageSection
         innerProps={{ style: HomeSectionContainerStyles }}
         background="linear-gradient(180deg, #7645D9 0%, #5121B1 100%)"
